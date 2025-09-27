@@ -19,7 +19,7 @@ const mimeTypes = {
 };
 
 const PORT = 8080;
-const PUBLIC_DIR = path.join(__dirname, 'public');
+const PUBLIC_DIR = path.join(__dirname, 'docs');
 
 // HTTP 서버 생성
 const server = http.createServer((req, res) => {

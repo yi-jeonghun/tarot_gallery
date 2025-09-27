@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- 타로 카드 데이터 -->
-    <script src="js/tarot_card_enum.js"></script>
+    <script src="./js/tarot_card_enum.js"></script>
     
     <style>
         body {
@@ -325,7 +325,7 @@
                             <div class="card-number">${cardNumber}</div>
                             <div class="card-name">${cardName}</div>
                             <div class="card-image-container">
-                                <img src="decks/${deckId}/${cardNumber}_md.PNG" 
+                                <img src="./decks/${deckId}/${cardNumber}_md.PNG" 
                                      alt="${deckName} ${cardName}" 
                                      class="card-image"
                                      onclick="openImageModal(this.src, '${deckName} ${cardName}')"
@@ -343,10 +343,10 @@
         function handleImageError(img, deckId, cardNumber) {
             if (img.src.includes('_md.PNG')) {
                 // 중간 사이즈 실패 시 원본 시도
-                img.src = `decks/${deckId}/${cardNumber}.PNG`;
+                img.src = `./decks/${deckId}/${cardNumber}.PNG`;
             } else if (img.src.includes('.PNG')) {
                 // 원본 실패 시 작은 사이즈 시도
-                img.src = `decks/${deckId}/${cardNumber}_sm.PNG`;
+                img.src = `./decks/${deckId}/${cardNumber}_sm.PNG`;
             } else {
                 // 모든 사이즈 실패 시 에러 메시지 표시
                 $(img).parent().html(`

@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- 타로 카드 데이터 -->
-    <script src="js/tarot_card_enum.js"></script>
+    <script src="./js/tarot_card_enum.js"></script>
     
     <style>
         body {
@@ -322,7 +322,7 @@
                                 <div class="image-label art-label">
                                     <i class="fas fa-palette me-1"></i>${deckName}
                                 </div>
-                                <img src="decks/${deckId}/${cardNumber}_md.PNG" 
+                                <img src="./decks/${deckId}/${cardNumber}_md.PNG" 
                                      alt="${deckName} ${cardName}" 
                                      class="card-image"
                                      onclick="openImageModal(this.src, '${deckName} ${cardName}')"
@@ -341,7 +341,7 @@
             if (type === 'original') {
                 // 원본 이미지 에러 시 대체 이미지 시도
                 if (img.src.endsWith('.jpg')) {
-                    img.src = `decks/tarot_card/${id}.png`;
+                    img.src = `./decks/tarot_card/${id}.png`;
                 } else {
                     img.style.display = 'none';
                     $(img).parent().append('<div class="text-muted"><i class="fas fa-image-slash"></i><br>이미지 없음</div>');
@@ -349,9 +349,9 @@
             } else if (type === 'art') {
                 // 아트 이미지 에러 시 다른 크기 시도
                 if (img.src.includes('_md.PNG')) {
-                    img.src = `decks/${id}/${cardNumber}.PNG`;
+                    img.src = `./decks/${id}/${cardNumber}.PNG`;
                 } else if (img.src.includes('.PNG')) {
-                    img.src = `decks/${id}/${cardNumber}_sm.PNG`;
+                    img.src = `./decks/${id}/${cardNumber}_sm.PNG`;
                 } else {
                     img.style.display = 'none';
                     $(img).parent().append('<div class="text-muted"><i class="fas fa-image-slash"></i><br>이미지 없음</div>');

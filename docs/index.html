@@ -11,7 +11,7 @@
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-		<script src="/js/tarot_card_enum.js"></script>
+		<script src="./js/tarot_card_enum.js"></script>
 
     <style>
         body {
@@ -482,7 +482,7 @@
                 const cardHtml = `
                     <div class="tarot-card" onclick="showCardModal('${deckId}', ${i})">
                         <div class="card-number">${i}</div>
-                        <img src="decks/${deckId}/${i}_sm.PNG" 
+                        <img src="./decks/${deckId}/${i}_sm.PNG" 
                              alt="타로 카드 ${i}" 
                              loading="lazy"
                              onerror="this.style.display='none'">
@@ -555,7 +555,7 @@
                     
                     // 모달 내용 설정
                     $('#modalTitle').text(`${deckName} - ${cardName}`);
-                    $('#modalImage').attr('src', `decks/${deckId}/${cardNumber}_md.PNG`);
+                    $('#modalImage').attr('src', `./decks/${deckId}/${cardNumber}_md.PNG`);
                     $('#modalImage').attr('alt', `${deckName} ${cardName}`);
                     $('#modalInfo').html(`
                         <strong>${cardName}</strong><br>
@@ -567,16 +567,16 @@
                     
                     // 이미지 로딩 에러 처리
                     $('#modalImage').off('error').on('error', function() {
-                        $(this).attr('src', `decks/${deckId}/${cardNumber}.PNG`);
+                        $(this).attr('src', `./decks/${deckId}/${cardNumber}.PNG`);
                         $(this).off('error').on('error', function() {
-                            $(this).attr('src', `decks/${deckId}/${cardNumber}_sm.PNG`);
+                            $(this).attr('src', `./decks/${deckId}/${cardNumber}_sm.PNG`);
                         });
                     });
                 })
                 .fail(function() {
                     // 기본 정보로 모달 표시
                     $('#modalTitle').text(`타로 카드 - ${cardName}`);
-                    $('#modalImage').attr('src', `decks/${deckId}/${cardNumber}_md.PNG`);
+                    $('#modalImage').attr('src', `./decks/${deckId}/${cardNumber}_md.PNG`);
                     $('#modalImage').attr('alt', `타로 카드 ${cardName}`);
                     $('#modalInfo').html(`
                         <strong>${cardName}</strong><br>

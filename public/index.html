@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>타로 카드 갤러리</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+		<script src="/js/tarot_card_enum.js"></script>
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .main-container {
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .deck-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 2rem;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .deck-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .deck-header {
+            background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .deck-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .carousel-container {
+            position: relative;
+            overflow: hidden;
+            padding: 2rem;
+        }
+        
+        .card-carousel {
+            display: flex;
+            transition: transform 0.3s ease;
+            touch-action: pan-x;
+        }
+        
+        .tarot-card {
+            flex: 0 0 auto;
+            margin: 0 0.5rem;
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .tarot-card:hover {
+            transform: scale(1.05);
+            cursor: pointer;
+        }
+        
+        .tarot-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 15px;
+        }
+        
+        .card-number {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .carousel-controls {
+            text-align: center;
+            margin-top: 1rem;
+        }
+        
+        .carousel-btn {
+            background: rgba(106, 17, 203, 0.8);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            margin: 0 0.5rem;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .carousel-btn:hover {
+            background: rgba(106, 17, 203, 1);
+            transform: scale(1.1);
+        }
+        
+        .carousel-btn:disabled {
+            background: rgba(0, 0, 0, 0.3);
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: white;
+        }
+        
+        .loading i {
+            font-size: 3rem;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive design */
+        @media (max-width: 576px) {
+            .tarot-card {
+                width: 80px;
+                margin: 0 0.25rem;
+            }
+            
+            .deck-title {
+                font-size: 1.4rem;
+            }
+            
+            .carousel-container {
+                padding: 1rem;
+            }
+        }
+        
+        @media (min-width: 577px) and (max-width: 768px) {
+            .tarot-card {
+                width: 100px;
+                margin: 0 0.3rem;
+            }
+        }
+        
+        @media (min-width: 769px) and (max-width: 1920px) {
+            .tarot-card {
+                width: 120px;
+                margin: 0 0.4rem;
+            }
+        }
+        
+        @media (min-width: 1921px) {
+            .tarot-card {
+                width: 150px;
+                margin: 0 0.5rem;
+            }
+            
+            .main-container {
+                max-width: 90%;
+            }
+        }
+        
+        /* Touch scrolling for mobile */
+        @media (max-width: 768px) {
+            .carousel-container {
+                overflow-x: auto;
+                overflow-y: hidden;
+                -webkit-overflow-scrolling: touch;
+                scroll-behavior: smooth;
+            }
+            
+            .card-carousel {
+                transition: none;
+            }
+            
+            .carousel-controls {
+                display: none;
+            }
+        }
+        
+        /* 액션 버튼 스타일 */
+        .action-buttons-container {
+            padding: 0 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .compare-btn {
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .compare-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        
+        .view-all-btn {
+            background: linear-gradient(45deg, #2575fc 0%, #6a11cb 100%);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(37, 117, 252, 0.3);
+        }
+        
+        .view-all-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 117, 252, 0.4);
+            color: white;
+        }
+        
+        @media (max-width: 576px) {
+            .action-buttons-container {
+                padding: 0 1rem;
+            }
+            
+            .compare-btn, .view-all-btn {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+                margin-bottom: 0.5rem;
+                display: block;
+                width: 100%;
+            }
+        }
+        
+        /* 모달 팝업 스타일 */
+        .card-modal {
+            display: none;
+            position: fixed;
+            z-index: 1050;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            margin: 0;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: #999;
+            cursor: pointer;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .close-btn:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .modal-image {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .modal-info {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .modal-info strong {
+            color: #333;
+            font-size: 1.2rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        
+        @media (max-width: 576px) {
+            .modal-content {
+                padding: 1rem;
+                border-radius: 15px;
+            }
+            
+            .modal-title {
+                font-size: 1.3rem;
+            }
+            
+            .modal-image {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Content -->
+    <div class="container main-container">
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center mb-4">
+                    <h1 class="text-white fw-bold">타로 카드 갤러리</h1>
+                    <p class="text-white-50">다양한 아티스트들의 독특한 타로 카드 덱을 만나보세요</p>
+                </div>
+                
+                <div id="loading" class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p class="mt-3">타로 카드 덱을 불러오는 중...</p>
+                </div>
+                
+                <div id="decks-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 카드 모달 팝업 -->
+    <div id="cardModal" class="card-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">타로 카드</h3>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <img id="modalImage" class="modal-image" src="" alt="타로 카드">
+                <div class="modal-info">
+                    <p id="modalInfo">카드 정보</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            loadDecks();
+        });
+        
+        // 덱 데이터 로드
+        function loadDecks() {
+            $.getJSON('db.json')
+                .done(function(decks) {
+                    $('#loading').hide();
+                    renderDecks(decks);
+                })
+                .fail(function() {
+                    $('#loading').html('<p class="text-danger">덱 데이터를 불러오는데 실패했습니다.</p>');
+                });
+        }
+        
+        // 덱 렌더링
+        function renderDecks(decks) {
+            const container = $('#decks-container');
+            
+            decks.forEach(deck => {
+                const deckHtml = createDeckHtml(deck);
+                container.append(deckHtml);
+                
+                // 카드 이미지 로드
+                loadCardImages(deck.deck_id);
+            });
+        }
+        
+        // 덱 HTML 생성
+        function createDeckHtml(deck) {
+            return `
+                <div class="deck-card">
+                    <div class="deck-header">
+                        <h2 class="deck-title">${deck.deck_name}</h2>
+                    </div>
+                    <div class="carousel-container">
+                        <div class="card-carousel" id="carousel-${deck.deck_id}">
+                            <!-- 카드 이미지들이 여기에 동적으로 추가됩니다 -->
+                        </div>
+                        <div class="carousel-controls d-none d-md-block">
+                            <button class="carousel-btn" onclick="scrollCarousel('${deck.deck_id}', 1)">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="carousel-btn" onclick="scrollCarousel('${deck.deck_id}', -1)">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="action-buttons-container text-center mt-3">
+                        <button class="btn compare-btn me-2" onclick="openComparePage('${deck.deck_id}')">
+                            <i class="fas fa-balance-scale me-2"></i>원본과 비교
+                        </button>
+                        <button class="btn view-all-btn" onclick="openViewAllPage('${deck.deck_id}')">
+                            <i class="fas fa-th-large me-2"></i>전체 카드 보기
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 카드 이미지 로드
+        function loadCardImages(deckId) {
+            const carousel = $(`#carousel-${deckId}`);
+            
+            // 78장의 타로 카드 이미지 로드
+            for (let i = 1; i <= 78; i++) {
+                const cardHtml = `
+                    <div class="tarot-card" onclick="showCardModal('${deckId}', ${i})">
+                        <div class="card-number">${i}</div>
+                        <img src="decks/${deckId}/${i}_sm.PNG" 
+                             alt="타로 카드 ${i}" 
+                             loading="lazy"
+                             onerror="this.style.display='none'">
+                    </div>
+                `;
+                carousel.append(cardHtml);
+            }
+            
+            // 모바일에서 터치 스크롤 활성화
+            if (window.innerWidth <= 768) {
+                enableTouchScroll(deckId);
+            }
+        }
+        
+        // 캐러셀 스크롤 (데스크톱용)
+        function scrollCarousel(deckId, direction) {
+            const carousel = $(`#carousel-${deckId}`);
+            const cardWidth = carousel.find('.tarot-card').first().outerWidth(true);
+            const currentTransform = carousel.css('transform');
+            const currentX = currentTransform === 'none' ? 0 : 
+                parseInt(currentTransform.split(',')[4]) || 0;
+            
+            const scrollAmount = cardWidth * 3; // 한 번에 3장씩 스크롤
+            const newX = currentX + (direction * scrollAmount);
+            
+            // 스크롤 범위 제한
+            const maxScroll = -(carousel.prop('scrollWidth') - carousel.parent().width());
+            const finalX = Math.max(maxScroll, Math.min(0, newX));
+            
+            carousel.css('transform', `translateX(${finalX}px)`);
+        }
+        
+        // 모바일 터치 스크롤 활성화
+        function enableTouchScroll(deckId) {
+            const container = $(`#carousel-${deckId}`).parent();
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+            
+            container.on('touchstart', function(e) {
+                isDown = true;
+                startX = e.touches[0].pageX - container.offset().left;
+                scrollLeft = container.scrollLeft();
+            });
+            
+            container.on('touchmove', function(e) {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.touches[0].pageX - container.offset().left;
+                const walk = (x - startX) * 2;
+                container.scrollLeft(scrollLeft - walk);
+            });
+            
+            container.on('touchend', function() {
+                isDown = false;
+            });
+        }
+        
+        // 카드 모달 표시
+        function showCardModal(deckId, cardNumber) {
+            // 카드 키와 이름 가져오기
+            const cardKey = TAROT_CARDS[cardNumber - 1]; // 배열은 0부터 시작하므로 -1
+            const cardName = TAROT_CARDS_MAP.get(cardKey) || `카드 ${cardNumber}`;
+            
+            // 덱 정보 가져오기
+            $.getJSON('db.json')
+                .done(function(decks) {
+                    const deck = decks.find(d => d.deck_id === deckId);
+                    const deckName = deck ? deck.deck_name : '타로 카드';
+                    
+                    // 모달 내용 설정
+                    $('#modalTitle').text(`${deckName} - ${cardName}`);
+                    $('#modalImage').attr('src', `decks/${deckId}/${cardNumber}_md.PNG`);
+                    $('#modalImage').attr('alt', `${deckName} ${cardName}`);
+                    $('#modalInfo').html(`
+                        <strong>${cardName}</strong><br>
+                        카드 번호: ${cardNumber} / 78
+                    `);
+                    
+                    // 모달 표시
+                    $('#cardModal').fadeIn(300);
+                    
+                    // 이미지 로딩 에러 처리
+                    $('#modalImage').off('error').on('error', function() {
+                        $(this).attr('src', `decks/${deckId}/${cardNumber}.PNG`);
+                        $(this).off('error').on('error', function() {
+                            $(this).attr('src', `decks/${deckId}/${cardNumber}_sm.PNG`);
+                        });
+                    });
+                })
+                .fail(function() {
+                    // 기본 정보로 모달 표시
+                    $('#modalTitle').text(`타로 카드 - ${cardName}`);
+                    $('#modalImage').attr('src', `decks/${deckId}/${cardNumber}_md.PNG`);
+                    $('#modalImage').attr('alt', `타로 카드 ${cardName}`);
+                    $('#modalInfo').html(`
+                        <strong>${cardName}</strong><br>
+                        카드 번호: ${cardNumber} / 78
+                    `);
+                    
+                    $('#cardModal').fadeIn(300);
+                });
+        }
+        
+        // 모달 닫기
+        function closeModal() {
+            $('#cardModal').fadeOut(300);
+        }
+        
+        // 모달 배경 클릭 시 닫기
+        $(document).on('click', '#cardModal', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+        
+        // ESC 키로 모달 닫기
+        $(document).on('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+        
+        // 비교 페이지 열기
+        function openComparePage(deckId) {
+            window.open(`compare.html?deck_id=${deckId}`, '_blank');
+        }
+        
+        // 전체 카드 보기 페이지 열기
+        function openViewAllPage(deckId) {
+            window.open(`tarot_deck_cards.html?deck_id=${deckId}`, '_blank');
+        }
+        
+        // 윈도우 리사이즈 이벤트
+        $(window).on('resize', function() {
+            // 모바일/데스크톱 모드 전환 시 터치 스크롤 재설정
+            $('.card-carousel').each(function() {
+                const deckId = $(this).attr('id').replace('carousel-', '');
+                if (window.innerWidth <= 768) {
+                    enableTouchScroll(deckId);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

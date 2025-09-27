@@ -1,0 +1,18 @@
+{
+  "name": "tarot-image-converter",
+  "version": "1.0.0",
+  "description": "Convert tarot card images to different resolutions and qualities",
+  "main": "image-converter.js",
+  "scripts": {
+    "start": "node app.js",
+    "server": "node app.js",
+    "image-convert": "node image-converter.js 고흐",
+    "test": "node image-converter.js 고흐 --test"
+  },
+  "dependencies": {
+    "sharp": "^0.32.6"
+  },
+  "keywords": ["image", "converter", "tarot", "resize"],
+  "author": "User",
+  "license": "MIT"
+}

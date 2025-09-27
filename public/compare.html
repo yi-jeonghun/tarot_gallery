@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>타로 카드 비교 - 원본 vs 아트</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- 타로 카드 데이터 -->
+    <script src="js/tarot_card_enum.js"></script>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .main-container {
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .header-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 2rem;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .deck-title {
+            color: #333;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .back-btn {
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 20px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-2px);
+            color: white;
+            text-decoration: none;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .comparison-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        
+        .comparison-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-name {
+            background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 1rem;
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-align: left;
+        }
+        
+        .image-comparison {
+            display: flex;
+            align-items: center;
+            padding: 1.5rem;
+            gap: 2rem;
+        }
+        
+        .image-container {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .image-label {
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #555;
+            font-size: 1rem;
+        }
+        
+        .original-label {
+            color: #dc3545;
+        }
+        
+        .art-label {
+            color: #0d6efd;
+        }
+        
+        .card-image {
+            width: 100%;
+            max-width: 200px;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .card-image:hover {
+            transform: scale(1.05);
+            cursor: pointer;
+        }
+        
+        .vs-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 60px;
+        }
+        
+        .vs-text {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: white;
+        }
+        
+        .loading i {
+            font-size: 3rem;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.2);
+            border-radius: 10px;
+            padding: 1rem;
+            color: #721c24;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .image-comparison {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            
+            .vs-divider {
+                min-width: auto;
+                transform: rotate(90deg);
+            }
+            
+            .deck-title {
+                font-size: 1.5rem;
+            }
+            
+            .card-image {
+                max-width: 150px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .main-container {
+                margin-top: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .header-card {
+                padding: 1.5rem;
+                margin-bottom: 1rem;
+            }
+            
+            .deck-title {
+                font-size: 1.3rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container main-container">
+        <div class="row">
+            <div class="col-12">
+                <!-- 헤더 -->
+                <div class="header-card">
+                    <h1 class="deck-title" id="deckTitle">타로 카드 비교</h1>
+                    <p class="subtitle">원본 타로 카드와 아티스트 버전을 비교해보세요</p>
+                    <a href="index.html" class="back-btn">
+                        <i class="fas fa-arrow-left me-2"></i>갤러리로 돌아가기
+                    </a>
+                </div>
+                
+                <!-- 로딩 -->
+                <div id="loading" class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p class="mt-3">카드 비교 데이터를 불러오는 중...</p>
+                </div>
+                
+                <!-- 에러 메시지 -->
+                <div id="errorMessage" class="error-message" style="display: none;">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span id="errorText">데이터를 불러오는 중 오류가 발생했습니다.</span>
+                </div>
+                
+                <!-- 비교 카드 컨테이너 -->
+                <div id="comparisonContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            initializePage();
+        });
+        
+        // 페이지 초기화
+        function initializePage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const deckId = urlParams.get('deck_id');
+            
+            if (!deckId) {
+                showError('덱 ID가 제공되지 않았습니다.');
+                return;
+            }
+            
+            loadDeckInfo(deckId);
+        }
+        
+        // 덱 정보 로드
+        function loadDeckInfo(deckId) {
+            $.getJSON('db.json')
+                .done(function(decks) {
+                    const deck = decks.find(d => d.deck_id === deckId);
+                    if (deck) {
+                        $('#deckTitle').text(`${deck.deck_name} - 원본 비교`);
+                        generateComparison(deckId, deck.deck_name);
+                    } else {
+                        showError('해당 덱을 찾을 수 없습니다.');
+                    }
+                })
+                .fail(function() {
+                    showError('덱 정보를 불러오는데 실패했습니다.');
+                });
+        }
+        
+        // 비교 화면 생성
+        function generateComparison(deckId, deckName) {
+            $('#loading').hide();
+            const container = $('#comparisonContainer');
+            
+            // 78장의 카드에 대해 비교 카드 생성
+            TAROT_CARDS.forEach((cardKey, index) => {
+                const cardName = TAROT_CARDS_MAP.get(cardKey) || `카드 ${index + 1}`;
+                const cardNumber = index + 1;
+                
+                const comparisonHtml = `
+                    <div class="comparison-card">
+                        <div class="card-name">
+                            ${cardName}
+                        </div>
+                        <div class="image-comparison">
+                            <div class="image-container">
+                                <div class="image-label original-label">
+                                    <i class="fas fa-star-of-david me-1"></i>원본
+                                </div>
+                                <img src="decks/tarot_card/${cardKey}.jpg" 
+                                     alt="원본 ${cardName}" 
+                                     class="card-image"
+                                     onclick="openImageModal(this.src, '원본 ${cardName}')"
+                                     onerror="handleImageError(this, 'original', '${cardKey}')">
+                            </div>
+                            <div class="vs-divider">
+                                <div class="vs-text">VS</div>
+                            </div>
+                            <div class="image-container">
+                                <div class="image-label art-label">
+                                    <i class="fas fa-palette me-1"></i>${deckName}
+                                </div>
+                                <img src="decks/${deckId}/${cardNumber}_md.PNG" 
+                                     alt="${deckName} ${cardName}" 
+                                     class="card-image"
+                                     onclick="openImageModal(this.src, '${deckName} ${cardName}')"
+                                     onerror="handleImageError(this, 'art', '${deckId}', ${cardNumber})">
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.append(comparisonHtml);
+            });
+        }
+        
+        // 이미지 에러 처리
+        function handleImageError(img, type, id, cardNumber = null) {
+            if (type === 'original') {
+                // 원본 이미지 에러 시 대체 이미지 시도
+                if (img.src.endsWith('.jpg')) {
+                    img.src = `decks/tarot_card/${id}.png`;
+                } else {
+                    img.style.display = 'none';
+                    $(img).parent().append('<div class="text-muted"><i class="fas fa-image-slash"></i><br>이미지 없음</div>');
+                }
+            } else if (type === 'art') {
+                // 아트 이미지 에러 시 다른 크기 시도
+                if (img.src.includes('_md.PNG')) {
+                    img.src = `decks/${id}/${cardNumber}.PNG`;
+                } else if (img.src.includes('.PNG')) {
+                    img.src = `decks/${id}/${cardNumber}_sm.PNG`;
+                } else {
+                    img.style.display = 'none';
+                    $(img).parent().append('<div class="text-muted"><i class="fas fa-image-slash"></i><br>이미지 없음</div>');
+                }
+            }
+        }
+        
+        // 이미지 모달 열기 (간단한 확대 기능)
+        function openImageModal(src, alt) {
+            const modal = $(`
+                <div class="modal fade" id="imageModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">${alt}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body text-center">
+                                <img src="${src}" alt="${alt}" class="img-fluid">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `);
+            
+            $('body').append(modal);
+            const modalInstance = new bootstrap.Modal(modal[0]);
+            modalInstance.show();
+            
+            // 모달이 닫힐 때 DOM에서 제거
+            modal.on('hidden.bs.modal', function() {
+                modal.remove();
+            });
+        }
+        
+        // 에러 메시지 표시
+        function showError(message) {
+            $('#loading').hide();
+            $('#errorText').text(message);
+            $('#errorMessage').show();
+        }
+    </script>
+</body>
+</html>

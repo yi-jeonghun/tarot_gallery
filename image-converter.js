@@ -10,6 +10,27 @@ class ImageConverter {
     }
 
     /**
+     * 경로가 파일인지 디렉토리인지 확인합니다
+     */
+    isFile(inputPath) {
+        try {
+            const stats = fs.statSync(inputPath);
+            return stats.isFile();
+        } catch (error) {
+            return false;
+        }
+    }
+
+    isDirectory(inputPath) {
+        try {
+            const stats = fs.statSync(inputPath);
+            return stats.isDirectory();
+        } catch (error) {
+            return false;
+        }
+    }
+
+    /**
      * 폴더 내의 모든 PNG 파일을 찾습니다
      */
     async findPngFiles() {
@@ -152,14 +173,31 @@ class ImageConverter {
      * 단일 이미지를 모든 버전으로 변환합니다
      */
     async convertSingleImage(fileName) {
-        const inputPath = path.join(this.inputFolder, fileName);
+        let inputPath, outputDir, baseName;
         
-        // 출력 파일 경로 설정 (목적지 디렉토리로 변경)
-        const lowPath = path.join(this.outputFolder, this.generateOutputFileName(fileName, 'low'));
-        const mdPath = path.join(this.outputFolder, this.generateOutputFileName(fileName, 'md'));
-        const smPath = path.join(this.outputFolder, this.generateOutputFileName(fileName, 'sm'));
+        // 만약 fileName이 전체 경로라면
+        if (path.isAbsolute(fileName) || fileName.includes('/')) {
+            inputPath = fileName;
+            baseName = path.basename(fileName);
+            // 출력 디렉토리 결정
+            if (this.outputFolder && this.outputFolder !== this.inputFolder) {
+                outputDir = this.outputFolder;
+            } else {
+                outputDir = path.dirname(fileName);
+            }
+        } else {
+            // 기존 방식: 파일명만 주어진 경우
+            inputPath = path.join(this.inputFolder, fileName);
+            baseName = fileName;
+            outputDir = this.outputFolder;
+        }
+        
+        // 출력 파일 경로 설정
+        const lowPath = path.join(outputDir, this.generateOutputFileName(baseName, 'low'));
+        const mdPath = path.join(outputDir, this.generateOutputFileName(baseName, 'md'));
+        const smPath = path.join(outputDir, this.generateOutputFileName(baseName, 'sm'));
 
-        console.log(`\n🎨 Processing: ${fileName}`);
+        console.log(`\n🎨 Processing: ${baseName}`);
 
         // 원본 이미지 정보 출력
         const originalInfo = await this.getImageInfo(inputPath);
@@ -176,6 +214,35 @@ class ImageConverter {
         ]);
 
         return results.every(result => result.status === 'fulfilled' && result.value);
+    }
+
+    /**
+     * 단일 파일을 변환합니다
+     */
+    async convertSingleFile(filePath) {
+        console.log('🚀 타로 카드 이미지 변환기 시작 (단일 파일)');
+        console.log(`📁 입력 파일: ${filePath}`);
+        console.log(`📁 출력 디렉토리: ${this.outputFolder || path.dirname(filePath)}`);
+
+        // 파일 확장자 확인
+        const ext = path.extname(filePath);
+        if (!this.supportedFormats.includes(ext)) {
+            console.log(`❌ 지원하지 않는 파일 형식입니다: ${ext}`);
+            console.log(`지원 형식: ${this.supportedFormats.join(', ')}`);
+            return;
+        }
+
+        console.log(`🎯 3개의 버전을 생성합니다: _md (1/3크기), _sm (1/10크기)`);
+
+        const success = await this.convertSingleImage(filePath);
+        
+        if (success) {
+            console.log(`\n🎉 변환 완료!`);
+            console.log(`✅ ${path.basename(filePath)} 변환 성공`);
+        } else {
+            console.log(`\n❌ 변환 실패`);
+            console.log(`❌ ${path.basename(filePath)} 변환 실패`);
+        }
     }
 
     /**
@@ -239,6 +306,22 @@ class ImageConverter {
 
         console.log('\n🧪 테스트 완료! 결과를 확인해보세요.');
     }
+
+    /**
+     * 단일 파일 테스트 모드
+     */
+    async testSingleFile(filePath) {
+        console.log('🧪 단일 파일 테스트 모드 실행');
+        console.log(`📄 테스트 파일: ${path.basename(filePath)}`);
+        
+        const success = await this.convertSingleImage(filePath);
+        
+        if (success) {
+            console.log('\n🧪 테스트 완료! 결과를 확인해보세요.');
+        } else {
+            console.log('\n❌ 테스트 실패');
+        }
+    }
 }
 
 // 실행 부분
@@ -249,41 +332,88 @@ async function main() {
     // 테스트 모드가 아닌 인수들만 필터링
     const nonTestArgs = args.filter(arg => !arg.startsWith('--'));
     
-    if (nonTestArgs.length < 2) {
-        console.log('❌ 사용법: node image-converter.js <입력 디렉토리명> <목적지 디렉토리명> [--test]');
-        console.log('예시: node image-converter.js 고흐 output');
-        console.log('예시: node image-converter.js 고흐 output --test');
+    if (nonTestArgs.length < 1) {
+        console.log('❌ 사용법: node image-converter.js <입력 경로> [목적지 디렉토리] [--test]');
+        console.log('예시 (디렉토리 처리): node image-converter.js 고흐 output');
+        console.log('예시 (단일 파일 처리): node image-converter.js 고흐/1.PNG output');
+        console.log('예시 (테스트 모드): node image-converter.js 고흐 output --test');
         process.exit(1);
     }
 
-    const inputDirectory = nonTestArgs[0];
+    const inputPath = nonTestArgs[0];
     const outputDirectory = nonTestArgs[1];
 
-    // 입력 디렉토리 존재 여부 확인
+    // 입력 경로 존재 여부 확인
     const fs = require('fs');
-    if (!fs.existsSync(inputDirectory)) {
-        console.error(`❌ 입력 디렉토리를 찾을 수 없습니다: ${inputDirectory}`);
+    if (!fs.existsSync(inputPath)) {
+        console.error(`❌ 입력 경로를 찾을 수 없습니다: ${inputPath}`);
         process.exit(1);
     }
 
-    // 목적지 디렉토리 존재 여부 확인
-    if (!fs.existsSync(outputDirectory)) {
-        console.error(`❌ 목적지 디렉토리를 찾을 수 없습니다: ${outputDirectory}`);
-        process.exit(1);
-    }
-
-    console.log(`📁 입력 디렉토리: ${inputDirectory}`);
-    console.log(`📁 목적지 디렉토리: ${outputDirectory}`);
-    const converter = new ImageConverter(inputDirectory, outputDirectory);
-
-    try {
-        if (isTestMode) {
-            await converter.testMode();
+    const converter = new ImageConverter();
+    
+    // 입력이 파일인지 디렉토리인지 확인
+    if (converter.isFile(inputPath)) {
+        // 단일 파일 처리
+        console.log(`📄 단일 파일 모드`);
+        
+        // 출력 디렉토리 설정
+        if (outputDirectory) {
+            if (!fs.existsSync(outputDirectory)) {
+                console.error(`❌ 목적지 디렉토리를 찾을 수 없습니다: ${outputDirectory}`);
+                process.exit(1);
+            }
+            converter.outputFolder = outputDirectory;
         } else {
-            await converter.convertAllImages();
+            // 출력 디렉토리가 지정되지 않으면 파일이 있는 디렉토리 사용
+            converter.outputFolder = path.dirname(inputPath);
         }
-    } catch (error) {
-        console.error('❌ 프로그램 실행 중 오류 발생:', error.message);
+        
+        try {
+            if (isTestMode) {
+                await converter.testSingleFile(inputPath);
+            } else {
+                await converter.convertSingleFile(inputPath);
+            }
+        } catch (error) {
+            console.error('❌ 파일 변환 중 오류 발생:', error.message);
+            process.exit(1);
+        }
+        
+    } else if (converter.isDirectory(inputPath)) {
+        // 디렉토리 처리 (기존 로직)
+        console.log(`📁 디렉토리 모드`);
+        
+        if (!outputDirectory) {
+            console.log('❌ 디렉토리 모드에서는 목적지 디렉토리가 필요합니다.');
+            console.log('사용법: node image-converter.js <입력 디렉토리> <목적지 디렉토리> [--test]');
+            process.exit(1);
+        }
+
+        // 목적지 디렉토리 존재 여부 확인
+        if (!fs.existsSync(outputDirectory)) {
+            console.error(`❌ 목적지 디렉토리를 찾을 수 없습니다: ${outputDirectory}`);
+            process.exit(1);
+        }
+
+        console.log(`📁 입력 디렉토리: ${inputPath}`);
+        console.log(`📁 목적지 디렉토리: ${outputDirectory}`);
+        
+        converter.inputFolder = inputPath;
+        converter.outputFolder = outputDirectory;
+
+        try {
+            if (isTestMode) {
+                await converter.testMode();
+            } else {
+                await converter.convertAllImages();
+            }
+        } catch (error) {
+            console.error('❌ 프로그램 실행 중 오류 발생:', error.message);
+            process.exit(1);
+        }
+    } else {
+        console.error(`❌ 입력 경로가 파일도 디렉토리도 아닙니다: ${inputPath}`);
         process.exit(1);
     }
 }
